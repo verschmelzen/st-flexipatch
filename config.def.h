@@ -187,6 +187,21 @@ static unsigned int cursorshape = 2;
 static unsigned int cols = 80;
 static unsigned int rows = 24;
 
+#if ANYGEOMETRY_PATCH
+/*
+ * Whether to use pixel geometry or cell geometry
+ */
+
+static Geometry geometry = CellGeometry;
+
+/*
+ * Default width and height (including borders!)
+ */
+
+static unsigned int width = 564;
+static unsigned int height = 364;
+#endif // ANYGEOMETRY_PATCH
+
 #if THEMED_CURSOR_PATCH
 /*
  * Default shape of the mouse cursor

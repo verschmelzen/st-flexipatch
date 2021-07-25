@@ -21,6 +21,13 @@
  */
 #define ALPHA_GRADIENT_PATCH 0
 
+/* This patch allows you to set st's width and height as pixels instead
+ * of cells, both from the command line (with the new parameter -G) or
+ * the config file (variables geometry, width and height).
+ * https://st.suckless.org/patches/anygeometry/
+ */
+#define ANYGEOMETRY_PATCH 0
+
 /* This patch allows st to reize to any pixel size rather than snapping to character width/height.
  * https://st.suckless.org/patches/anysize/
  */

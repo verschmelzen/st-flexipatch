@@ -27,6 +27,13 @@ char *argv0;
 #include <X11/Xcursor/Xcursor.h>
 #endif // THEMED_CURSOR_PATCH
 
+#if ANYGEOMETRY_PATCH
+typedef enum {
+	PixelGeometry,
+	CellGeometry
+} Geometry;
+#endif // ANYGEOMETRY_PATCH
+
 /* X modifiers */
 #define XK_ANY_MOD    UINT_MAX
 #define XK_NO_MOD     0
@@ -1210,13 +1217,35 @@ xinit(int cols, int rows)
 	xloadcols();
 
 	/* adjust fixed window geometry */
-	#if ANYSIZE_PATCH
+	#if ANYSIZE_PATCH && ANYGEOMETRY_PATCH
+	switch (geometry) {
+	case CellGeometry:
+		win.w = 2 * win.hborderpx + cols * win.cw;
+		win.h = 2 * win.vborderpx + rows * win.ch;
+		break;
+	case PixelGeometry:
+		win.w = cols;
+		win.h = rows;
+		break;
+	}
+	#elif ANYSIZE_PATCH
 	win.w = 2 * win.hborderpx + cols * win.cw;
 	win.h = 2 * win.vborderpx + rows * win.ch;
+	#elif ANYGEOMETRY_PATCH
+	switch (geometry) {
+	case CellGeometry:
+		win.w = 2 * borderpx + cols * win.cw;
+		win.h = 2 * borderpx + rows * win.ch;
+		break;
+	case PixelGeometry:
+		win.w = cols;
+		win.h = rows;
+		break;
+	}
 	#else
 	win.w = 2 * borderpx + cols * win.cw;
 	win.h = 2 * borderpx + rows * win.ch;
-	#endif // ANYSIZE_PATCH
+	#endif // ANYGEOMETRY_PATCH
 	if (xw.gm & XNegative)
 		xw.l += DisplayWidth(xw.dpy, xw.scr) - win.w - 2;
 	if (xw.gm & YNegative)
@@ -2488,11 +2517,14 @@ run(void)
 void
 usage(void)
 {
-	die("usage: %s [-aiv] [-c class]"
+	die("usage: %s [-aiv] [-c class]" // ANYGEOMETRY_PATCH // ANYGEOMETRY_PATCH
 		#if WORKINGDIR_PATCH
 		" [-d path]"
 		#endif // WORKINGDIR_PATCH
 		" [-f font] [-g geometry]"
+		#if ANYGEOMETRY_PATCH // ANYGEOMETRY_PATCH
+		" [-g geometry]"
+		#endif // ANYGEOMETRY_PATCH // ANYGEOMETRY_PATCH
 	    " [-n name] [-o file]\n"
 	    "          [-T title] [-t title] [-w windowid]"
 	    " [[-e] command [args ...]]\n"
@@ -2540,6 +2572,14 @@ main(int argc, char *argv[])
 	case 'g':
 		xw.gm = XParseGeometry(EARGF(usage()),
 				&xw.l, &xw.t, &cols, &rows);
+#if ANYGEOMETRY_PATCH
+		geometry = CellGeometry;
+		break;
+	case 'G':
+		xw.gm = XParseGeometry(EARGF(usage()),
+				&xw.l, &xw.t, &width, &height);
+		geometry = PixelGeometry;
+#endif // ANYGEOMETRY_PATCH
 		break;
 	case 'i':
 		xw.isfixed = 1;
@@ -2587,7 +2627,20 @@ run:
 	cols = MAX(cols, 1);
 	rows = MAX(rows, 1);
 	tnew(cols, rows);
+	#if ANYGEOMETRY_PATCH
+	switch (geometry) {
+	case CellGeometry:
+		xinit(cols, rows);
+		break;
+	case PixelGeometry:
+		xinit(width, height);
+		cols = (win.w - 2 * borderpx) / win.cw;
+		rows = (win.h - 2 * borderpx) / win.ch;
+		break;
+	}
+	#else
 	xinit(cols, rows);
+	#endif // ANYGEOMETRY_PATCH
 	xsetenv();
 	selinit();
 	#if WORKINGDIR_PATCH
