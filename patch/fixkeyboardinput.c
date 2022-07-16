@@ -580,6 +580,7 @@ static Key key[] = {
 	{ XK_F,            ControlMask|ShiftMask,          "\033[70;6u",  0,  0},
 	{ XK_G,            ControlMask|ShiftMask,          "\033[71;6u",  0,  0},
 	{ XK_H,            ControlMask|ShiftMask,          "\033[72;6u",  0,  0},
+	{ XK_I,            ControlMask,                    "\033[73;5u",  0,  0},
 	{ XK_I,            ControlMask|ShiftMask,          "\033[73;6u",  0,  0},
 	{ XK_I,            Mod1Mask|ControlMask|ShiftMask, "\033[73;8u",  0,  0},
 	{ XK_J,            ControlMask|ShiftMask,          "\033[75;6u",  0,  0},
